@@ -25,7 +25,7 @@ function getHeadersList(body, digest, canonicalUrl, timestamp) {
     const signData = [
         ['vCanonicalUrl', canonicalUrl],
         body == null ? null : ['Digest', digest],
-        ['vDate', new Date(timestamp + 1000).toUTCString()]
+        ['vDate', typeof timestamp === 'string' ? timestamp : new Date(timestamp + 1000).toUTCString()],
     ].filter(item => !!item);
 
     return {

@@ -4,7 +4,7 @@ declare module '@wulkanowy/uonet-request-signer-node-hebe' {
     privateKey: string,
     body: string,
     requestPath: string,
-    timestamp: number
+    timestamp: number | string,
   ): SignatureValues;
 
   export interface SignatureValues {
