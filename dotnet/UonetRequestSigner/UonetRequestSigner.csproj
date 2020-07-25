@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>UonetRequestSigner</Title>
+    <Authors>Wulkanowy</Authors>
+    <PackageProjectUrl>https://github.com/wulkanowy/uonet-request-signer/tree/master/dotnet/README.md</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/wulkanowy/uonet-request-signer/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/wulkanowy/uonet-request-signer</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.6" />
+  </ItemGroup>
+
+</Project>

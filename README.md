@@ -12,6 +12,7 @@
 | [Android](https://github.com/wulkanowy/uonet-request-signer/tree/master/android) | [![JitPack](https://img.shields.io/bintray/v/wulkanowy/wulkanowy/signer-android.svg?style=flat-square)](https://bintray.com/wulkanowy/wulkanowy/signer-android) |
 | [PHP](https://github.com/wulkanowy/uonet-request-signer/tree/master/php) | [![Packagist Pre Release](https://img.shields.io/packagist/vpre/wulkanowy/uonet-request-signer.svg?style=flat-square)](https://packagist.org/packages/wulkanowy/uonet-request-signer) |
 | [Python](https://github.com/wulkanowy/uonet-request-signer/tree/master/python) | [![pypi](https://img.shields.io/pypi/v/uonet-request-signer.svg?style=flat-square)](https://pypi.org/project/uonet-request-signer/) |
+| [.NET](https://github.com/wulkanowy/uonet-request-signer/tree/master/dotnet) | [![nuget](https://img.shields.io/nuget/v/UonetRequestSigner?style=flat-square)](https://www.nuget.org/packages/UonetRequestSigner/) |
 
 ## Implementations of HEBE
 

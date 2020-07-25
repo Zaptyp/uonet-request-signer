@@ -57,6 +57,16 @@ jobs:
     - run: pip install --user .[testing]
     - run: python -m pytest .
 
+  dotnet:
+    working_directory: ~/signer/dotnet
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    steps:
+      - checkout:
+          path: ~/signer
+      - run: dotnet restore
+      - run: dotnet test
+
 workflows:
   version: 2
   test:
@@ -67,3 +77,4 @@ workflows:
     - jvm
     - jvm-hebe
     - python
+    - dotnet
