@@ -15,11 +15,13 @@ void main() {
   });
 
   test('Tests', () {
-    final values = getSignatureValues(
-        fingerprint, privateKey, body, fullUrl, DateTime.now());
+    final values = getSignatureValues(fingerprint, privateKey, body, fullUrl,
+        DateTime.utc(2020, 3, 14, 4, 14, 15));
 
     expect(
         values.digest, 'SHA-256=RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o=');
     expect(values.canonicalUrl, 'api%2fmobile%2fregister%2fhebe');
+    expect(values.signature,
+        'keyId="7EBA57E1DDBA1C249D097A9FF1C9CCDD45351A6A",headers="vCanonicalUrl Digest vDate",algorithm="sha256withrsa",signature=Base64(SHA256withRSA(jQHXSRwBv7d4tTz4rnWL2jo5N6hpPjQ6waSDgu07XK13AqmRNHb0yL4KfYZqEIJFtVyWDKq7m6k7oAhPxaEWQphG3gC2+hD94siMj2igN8xSMAKN3N/Aw17cRaagVufnGxr2iVN3uAUW+F6HAuP1uP7rWWAUfkyFmC8NYUKRq8fQ/NXV3or15u/LXLoM9lO7YqC1YEynVQzk7ERIcbXWBF9yPqQt3vZwNxO9qq0vEsq0a1SXH8x4J9kSQBWrVPwrxPEet0okdX5eE23B0m8gDDlcSCOk1fQWPLNlBRcp2EV1cMGvgNRAxb39hKxXvXTXhB3yNtod4xM0lJgEKWGo+A==))');
   });
 }
