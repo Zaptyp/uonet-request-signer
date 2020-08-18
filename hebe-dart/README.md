@@ -1,5 +1,14 @@
 # UONET+ hebe request signer for Dart.
 
+[![pub](https://img.shields.io/pub/v/uonet_request_signer.svg?style=flat-square)](https://pub.dev/packages/uonet_request_signer)
+
+## Instalation
+
+```yaml
+dependencies:
+  uonet_request_signer: ^1.0.0
+```
+
 ## Usage
 
 ```dart
