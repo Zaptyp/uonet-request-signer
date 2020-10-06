@@ -54,3 +54,29 @@ def get_signature_values(fingerprint, private_key, body, full_url, timestamp):
         canonical_url,
         f'keyId="{fingerprint}",headers="{headers}",algorithm="sha256withrsa",signature=Base64(SHA256withRSA({signature}))'
     )
+
+
+def pem_getraw(pem):
+    return pem.decode('utf-8').replace('\n', '').split('-----')[2]
+
+
+def generate_key_pair():
+    pkcs8 = crypto.PKey()
+    pkcs8.generate_key(crypto.TYPE_RSA, 2048)
+
+    x509 = crypto.X509()
+    x509.set_version(2)
+    x509.set_serial_number(1)
+    subject = x509.get_subject()
+    subject.CN = "APP_CERTIFICATE CA Certificate"
+    x509.set_issuer(subject)
+    x509.set_pubkey(pkcs8)
+    x509.sign(pkcs8, 'sha256')
+    x509.gmtime_adj_notBefore(0)
+    x509.gmtime_adj_notAfter(20*365*24*60*60)
+
+    certificate = pem_getraw(crypto.dump_certificate(crypto.FILETYPE_PEM, x509))
+    fingerprint = x509.digest('sha1').decode('utf-8').replace(':', '').lower()
+    private_key = pem_getraw(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkcs8))
+
+    return certificate, fingerprint, private_key
