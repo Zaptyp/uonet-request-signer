@@ -16,3 +16,9 @@ from datetime import datetime
 
 digest, canonical_url, signature = get_signature_values(fingerprint, private_key, body, full_url, datetime.now())
 ```
+
+## Tests
+
+```console
+$ python -m pytest .
+```
