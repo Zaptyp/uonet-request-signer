@@ -1,12 +1,17 @@
 import setuptools
-import uonet_request_signer_hebe
+import re
 
 with open("README.md") as f:
     long_description = f.read()
 
+with open("uonet_request_signer_hebe/__init__.py") as f:
+    text = f.read()
+    __name__ = re.search(r"__name__ = \"(.*?)\"", text)[1]
+    __version__ = re.search(r"__version__ = \"(.*?)\"", text)[1]
+
 setuptools.setup(
-    name=uonet_request_signer_hebe.__name__,
-    version=uonet_request_signer_hebe.__version__,
+    name=__name__,
+    version=__version__,
     description="UONET+ (hebe) request signer for Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
