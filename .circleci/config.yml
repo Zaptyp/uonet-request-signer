@@ -56,6 +56,15 @@ jobs:
         path: ~/signer
     - run: pip install --user .[testing]
     - run: python -m pytest .
+  python-hebe:
+    working_directory: ~/signer/hebe-python
+    docker:
+    - image: circleci/python:3.8
+    steps:
+    - checkout:
+        path: ~/signer
+    - run: pip install --user .[testing]
+    - run: python -m pytest .
 
   dotnet:
     working_directory: ~/signer/dotnet
@@ -86,5 +95,6 @@ workflows:
     - jvm
     - jvm-hebe
     - python
+    - python-hebe
     - dotnet
     - dart-hebe
