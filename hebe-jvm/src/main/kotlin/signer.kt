@@ -107,9 +107,9 @@ fun generateKeyPair(): Triple<String, String, String> {
             .getCertificate(certBuilder.build(contentSigner))
 
     val certificatePem = Base64.encodeToString(cert.encoded, false)
-    val digest = MessageDigest.getInstance("SHA-1")
-    digest.update(cert.encoded)
-    val fingerprint = digest.digest().joinToString("") { "%02x".format(it) }
+    val fingerprint = createSign("SHA-1")
+            .digest(cert.encoded)
+            .joinToString("") { "%02x".format(it) }
     val privateKeyPem = Base64.encodeToString(privateKey.encoded, false)
     return Triple(certificatePem, fingerprint, privateKeyPem)
 }
