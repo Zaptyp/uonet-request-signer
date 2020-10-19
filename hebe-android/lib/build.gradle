@@ -32,7 +32,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {
@@ -40,9 +39,6 @@ dependencies {
     implementation "com.brsanthu:migbase64:2.2"
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
-    api 'org.bouncycastle:bcprov-jdk15to18:1.66'
-    api 'org.bouncycastle:bcpkix-jdk15to18:1.66'
 }
 
 bintray {
@@ -55,7 +51,7 @@ bintray {
         userOrg = 'wulkanowy'
         licenses = ['Apache-2.0']
         vcsUrl = GIT_URL
-        labels = ['aar', 'wulkanowy', 'uonet-request-signer']
+        labels = ['aar', 'wulkanowy', 'uonet-request-signer', 'hebe', 'uonet-request-signer-hebe', 'android']
         publicDownloadNumbers = true
         publish = true
 
@@ -83,9 +79,9 @@ install {
                 }
                 developers {
                     developer {
-                        id 'mklkj'
-                        name 'Mikołaj Pich'
-                        email 'm.pich@outlook.com'
+                        id 'kuba2k2'
+                        name 'Kuba Szczodrzyński'
+                        email 'kuba@szczodrzynski.pl'
                     }
                 }
                 scm {

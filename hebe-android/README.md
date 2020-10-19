@@ -1,10 +1,10 @@
-# Uonet+ request signer for android
+# UONET+ (hebe) Request Signer for Android
 
-[![Bintray](https://img.shields.io/bintray/v/wulkanowy/wulkanowy/signer-android.svg?style=flat-square)](https://bintray.com/wulkanowy/wulkanowy/signer-android)
+[![Bintray](https://img.shields.io/bintray/v/wulkanowy/wulkanowy/uonet-request-signer-hebe-android.svg?style=flat-square)](https://bintray.com/wulkanowy/wulkanowy/uonet-request-signer-hebe-android)
 
-## Instalation
+## Installation
 
-```grovy
+```groovy
 allprojects {
     repositories {
         maven { url "https://dl.bintray.com/wulkanowy/wulkanowy" }
@@ -12,26 +12,24 @@ allprojects {
 }
 
 dependencies {
-    implementation "io.github.wulkanowy:signer-android:0.1.1"
+    implementation "io.github.wulkanowy:uonet-request-signer-hebe-android:0.1.0"
 }
 ```
 
 ## Usage
 
+Generate an RSA2048 key pair (private key and certificate):
 ```kotlin
-import io.github.wulkanowy.signer.android.signContent
-import io.github.wulkanowy.signer.android.getPrivateKeyFromCert
+import io.github.wulkanowy.signer.hebe.android.generateKeyPair
 
-// sign content using PFX certificate and API password
-val signed = signContent(password, certificate, content)
+val (certificate, fingerprint, privateKey) = generateKeyPair()
+```
 
-// sign content using private key extracted from PFX
-val signed = signContent(key, content)
+Sign request content:
+```kotlin
+import io.github.wulkanowy.signer.hebe.android.getSignatureValues
 
-// extract private key from PFX
-// using a once generated private key is about 250x faster
-// than using the PFX each time
-val privateKey = getPrivateKeyFromCert(password, certificate)
+val (digest, canonicalUrl, signature) = getSignatureValues(fingerprint, privateKey, body, fullUrl, Date())
 ```
 
 ## Tests
