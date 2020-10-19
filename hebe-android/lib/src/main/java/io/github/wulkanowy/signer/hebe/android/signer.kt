@@ -1,17 +1,15 @@
 package io.github.wulkanowy.signer.hebe.android
 
+import android.content.Context
+import android.security.KeyPairGeneratorSpec
 import com.migcomponents.migbase64.Base64
-import org.bouncycastle.asn1.x500.X500Name
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
-import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import java.math.BigInteger
 import java.net.URLEncoder
 import java.security.*
 import java.security.spec.PKCS8EncodedKeySpec
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.security.auth.x500.X500Principal
 import java.security.MessageDigest.getInstance as createSign
 
 private fun getDigest(body: String?): String {
@@ -19,16 +17,12 @@ private fun getDigest(body: String?): String {
     return Base64.encodeToString(createSign("SHA-256").digest(body.toByteArray()), false)
 }
 
-private fun getSignatureValue(values: String, privateKey: String): String {
-    val bl = Base64.decode(privateKey)
-    val spec = PKCS8EncodedKeySpec(bl)
-    val kf = KeyFactory.getInstance("RSA")
+private fun getSignatureValue(values: String, privateKey: PrivateKey): String {
+    val signature = Signature.getInstance("SHA256withRSA")
+    signature.initSign(privateKey)
+    signature.update(values.toByteArray())
 
-    val privateSignature = Signature.getInstance("SHA256withRSA")
-    privateSignature.initSign(kf.generatePrivate(spec))
-    privateSignature.update(values.toByteArray())
-
-    return Base64.encodeToString(privateSignature.sign(), false)
+    return Base64.encodeToString(signature.sign(), false)
 }
 
 private fun getEncodedPath(path: String): String {
@@ -53,13 +47,26 @@ private fun getHeadersList(body: String?, digest: String, canonicalUrl: String, 
 }
 
 fun getSignatureValues(
-    fingerprint: String,
-    privateKey: String,
-    body: String?,
-    requestPath: String,
-    timestamp: Date
+        fingerprint: String,
+        privateKey: String,
+        body: String?,
+        fullUrl: String,
+        timestamp: Date
 ): Triple<String, String, String> {
-    val canonicalUrl = getEncodedPath(requestPath)
+    val keySpec = PKCS8EncodedKeySpec(Base64.decode(privateKey))
+    val keyFactory = KeyFactory.getInstance("RSA")
+    val key = keyFactory.generatePrivate(keySpec)
+    return getSignatureValues(fingerprint, key, body, fullUrl, timestamp)
+}
+
+fun getSignatureValues(
+        fingerprint: String,
+        privateKey: PrivateKey,
+        body: String?,
+        fullUrl: String,
+        timestamp: Date
+): Triple<String, String, String> {
+    val canonicalUrl = getEncodedPath(fullUrl)
     val digest = getDigest(body)
     val (headers, values) = getHeadersList(body, digest, canonicalUrl, timestamp)
     val signatureValue = getSignatureValue(values, privateKey)
@@ -71,45 +78,42 @@ fun getSignatureValues(
     )
 }
 
-fun generateKeyPair(): Triple<String, String, String> {
-    val generator = KeyPairGenerator.getInstance("RSA")
-    generator.initialize(2048)
-    val keyPair = generator.generateKeyPair()
-    val publicKey = keyPair.public
-    val privateKey = keyPair.private
-
-    val bcProvider = BouncyCastleProvider()
-    Security.addProvider(bcProvider)
-
+fun generateKeyPair(context: Context, alias: String): Triple<String, String, PrivateKey> {
     val now = System.currentTimeMillis()
     val notBefore = Date(now)
 
-    val name = X500Name("CN=APP_CERTIFICATE CA Certificate")
+    val name = X500Principal("CN=APP_CERTIFICATE CA Certificate")
 
     val notAfter = Calendar.getInstance()
     notAfter.time = notBefore
     notAfter.add(Calendar.YEAR, 20)
 
-    val contentSigner = JcaContentSignerBuilder("SHA256withRSA")
-        .build(privateKey)
+    val genSpec = KeyPairGeneratorSpec.Builder(context)
+            .setAlias(alias)
+            .setSubject(name)
+            .setSerialNumber(BigInteger.ONE)
+            .setStartDate(notBefore)
+            .setEndDate(notAfter.time)
+            .build()
 
-    val certBuilder = JcaX509v3CertificateBuilder(
-        name,
-        BigInteger.ONE,
-        notBefore,
-        notAfter.time,
-        name,
-        publicKey
-    )
+    val generator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore")
+    generator.initialize(genSpec)
+    generator.generateKeyPair()
 
-    val cert = JcaX509CertificateConverter()
-        .setProvider(bcProvider)
-        .getCertificate(certBuilder.build(contentSigner))
+    return getKeyEntry(alias)!!
+}
+
+fun getKeyEntry(alias: String): Triple<String, String, PrivateKey>? {
+    val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
+        load(null)
+    }
+    val entry = keyStore.getEntry(alias, null) as KeyStore.PrivateKeyEntry
+    val cert = entry.certificate
+    val privateKey = entry.privateKey
 
     val certificatePem = Base64.encodeToString(cert.encoded, false)
     val fingerprint = createSign("SHA-1")
-        .digest(cert.encoded)
-        .joinToString("") { "%02x".format(it) }
-    val privateKeyPem = Base64.encodeToString(privateKey.encoded, false)
-    return Triple(certificatePem, fingerprint, privateKeyPem)
+            .digest(cert.encoded)
+            .joinToString("") { "%02x".format(it) }
+    return Triple(certificatePem, fingerprint, privateKey)
 }

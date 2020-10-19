@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import io.github.wulkanowy.signer.hebe.android.generateKeyPair
+import io.github.wulkanowy.signer.hebe.android.getKeyEntry
 import io.github.wulkanowy.signer.hebe.android.getSignatureValues
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -17,12 +18,12 @@ class SignerActivity : Activity() {
 
         generate.setOnClickListener {
             val start = Date()
-            val (certificateStr, fingerprintStr, privateKeyStr) = generateKeyPair()
+            val (certificateStr, fingerprintStr, _) = generateKeyPair(this, "KeyEntry")
             val end = Date()
             timer.text = getTimeTakenString(start, end)
             certificate.setText(certificateStr)
             fingerprint.setText(fingerprintStr)
-            privateKey.setText(privateKeyStr)
+            privateKey.setText("AndroidKeyStore KeyEntry")
         }
 
         filldata.setOnClickListener {
@@ -37,13 +38,27 @@ class SignerActivity : Activity() {
             result.text = try {
                 Log.d("signer", "Sign starts...")
                 val start = Date()
-                val (digest, canonicalUrl, signature) = getSignatureValues(
-                    fingerprint.text.toString(),
-                    privateKey.text.toString(),
-                    content.text.toString(),
-                    fullUrl.text.toString(),
-                    Date()
-                )
+                val keyString = privateKey.text.toString()
+
+                val (digest, canonicalUrl, signature) = if (keyString.startsWith("AndroidKeyStore")) {
+                    val (_, _, key) = getKeyEntry(keyString.split(" ")[1])!!
+                    getSignatureValues(
+                            fingerprint.text.toString(),
+                            key,
+                            content.text.toString(),
+                            fullUrl.text.toString(),
+                            Date()
+                    )
+                } else {
+                    getSignatureValues(
+                            fingerprint.text.toString(),
+                            keyString,
+                            content.text.toString(),
+                            fullUrl.text.toString(),
+                            Date()
+                    )
+                }
+
                 val end = Date()
                 Log.d("signer", "Sign ends")
                 timer.text = getTimeTakenString(start, end)
