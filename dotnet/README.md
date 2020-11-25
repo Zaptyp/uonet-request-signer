@@ -11,9 +11,9 @@ $ dotnet add package UonetRequestSigner
 ## Usage
 
 ```cs
-using Wulkanowy
+using Wulkanowy;
 
-var signed = UonetRequestSigner.SignContent(Password, Certificate, ontent)
+var signed = UonetRequestSigner.SignContent(Password, Certificate, Content);
 ```
 
 ## Tests
