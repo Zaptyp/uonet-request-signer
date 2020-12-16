@@ -81,7 +81,7 @@ jobs:
         - image: mcr.microsoft.com/dotnet/core/sdk:3.1
       steps:
         - checkout:
-            path: ~/signer/hebe-dotnet
+            path: ~/signer
         - run: dotnet restore
         - run: dotnet test
   dart-hebe:
