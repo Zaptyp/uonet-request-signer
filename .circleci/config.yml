@@ -75,6 +75,15 @@ jobs:
           path: ~/signer
       - run: dotnet restore
       - run: dotnet test
+  dotnet-hebe:
+    working_directory: ~/signer/dotnet-hebe
+      docker:
+        - image: mcr.microsoft.com/dotnet/core/sdk:3.1
+      steps:
+        - checkout:
+            path: ~/signer-hebe
+        - run: dotnet restore
+        - run: dotnet test
   dart-hebe:
     working_directory: ~/signer/hebe-dart
     docker:

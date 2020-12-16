@@ -22,6 +22,7 @@
 | [JVM](https://github.com/wulkanowy/uonet-request-signer/tree/master/hebe-jvm) | [![JitPack](https://img.shields.io/jitpack/v/wulkanowy/uonet-request-signer.svg?style=flat-square)](https://jitpack.io/#wulkanowy/uonet-request-signer) |
 | [Python](https://github.com/wulkanowy/uonet-request-signer/tree/master/hebe-python) | [![pypi](https://img.shields.io/pypi/v/uonet-request-signer-hebe.svg?style=flat-square)](https://pypi.org/project/uonet-request-signer-hebe/) |
 | [Dart](https://github.com/wulkanowy/uonet-request-signer/tree/master/hebe-dart) | [![pub](https://img.shields.io/pub/v/uonet_request_signer?style=flat-square)](https://pub.dev/packages/uonet_request_signer) |
+| [.NET](https://github.com/wulkanowy/uonet-request-signer/tree/master/dotnet-hebe) | None|
 
 
 ## Plugins
