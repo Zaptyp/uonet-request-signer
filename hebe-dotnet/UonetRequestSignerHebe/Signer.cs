@@ -14,8 +14,10 @@ namespace UonetRequestSignerHebe
             string digest = GetDigest(body);
             string timestamp = date.ToString("ddd, dd MMM yyyy hh:mm:ss 'GMT'");
             var headers = GetHeaders(path, timestamp, digest);
+            
             var headersName = from header in headers select header.Item1;
             var headersValue = from header in headers select header.Item2;
+            
             return new SignerValues
             {
                 Digest = $"SHA-256={digest}",
@@ -31,6 +33,7 @@ namespace UonetRequestSignerHebe
             headers.Add(("vCanonicalUrl", GetEncodedPath(url)));
             headers.Add(("Digest", digest));
             headers.Add(("vDate", date));
+            
             return headers;
         }
 
@@ -39,6 +42,7 @@ namespace UonetRequestSignerHebe
             var rx = Regex.Match(path, "(api/mobile/.+)");
             if (rx.Value == null)
                 throw new Exception("The url is not finded!");
+            
             return rx.Value.Replace("/", "%2f");
         }
 
@@ -46,6 +50,7 @@ namespace UonetRequestSignerHebe
         {
             var sha = SHA256.Create();
             var data = sha.ComputeHash(Encoding.UTF8.GetBytes(body));
+            
             return Convert.ToBase64String(data);
         }
         
@@ -55,6 +60,7 @@ namespace UonetRequestSignerHebe
             var provider = new RSACryptoServiceProvider();
             provider.ImportPkcs8PrivateKey(new ReadOnlySpan<byte>(blk), out _);
             var signedValues = provider.SignData(Encoding.UTF8.GetBytes(values), SHA256.Create());
+            
             return Convert.ToBase64String(signedValues);
         }
     }
