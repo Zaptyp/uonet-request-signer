@@ -10,6 +10,14 @@ $ pip install -U uonet-request-signer-hebe
 
 ## Usage
 
+Generate an RSA2048 key pair (private key and certificate):
+```python
+from uonet_request_signer_hebe import generate_key_pair
+
+certificate, fingerprint, private_key = generate_key_pair()
+```
+
+Sign request content:
 ```python
 from uonet_request_signer_hebe import get_signature_values
 from datetime import datetime

@@ -1,9 +1,14 @@
 package io.github.wulkanowy.signer.hebe
 
 import com.migcomponents.migbase64.Base64
+import org.bouncycastle.asn1.x500.X500Name
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
+import java.math.BigInteger
 import java.net.URLEncoder
-import java.security.KeyFactory
-import java.security.Signature
+import java.security.*
 import java.security.spec.PKCS8EncodedKeySpec
 import java.text.SimpleDateFormat
 import java.util.*
@@ -64,4 +69,47 @@ fun getSignatureValues(
         canonicalUrl,
         """keyId="$fingerprint",headers="$headers",algorithm="sha256withrsa",signature=Base64(SHA256withRSA($signatureValue))"""
     )
+}
+
+fun generateKeyPair(): Triple<String, String, String> {
+    val generator = KeyPairGenerator.getInstance("RSA")
+    generator.initialize(2048)
+    val keyPair = generator.generateKeyPair()
+    val publicKey = keyPair.public
+    val privateKey = keyPair.private
+
+    val bcProvider = BouncyCastleProvider()
+    Security.addProvider(bcProvider)
+
+    val now = System.currentTimeMillis()
+    val notBefore = Date(now)
+
+    val name = X500Name("CN=APP_CERTIFICATE CA Certificate")
+
+    val notAfter = Calendar.getInstance()
+    notAfter.time = notBefore
+    notAfter.add(Calendar.YEAR, 20)
+
+    val contentSigner = JcaContentSignerBuilder("SHA256withRSA")
+            .build(privateKey)
+
+    val certBuilder = JcaX509v3CertificateBuilder(
+            name,
+            BigInteger.ONE,
+            notBefore,
+            notAfter.time,
+            name,
+            publicKey
+    )
+
+    val cert = JcaX509CertificateConverter()
+            .setProvider(bcProvider)
+            .getCertificate(certBuilder.build(contentSigner))
+
+    val certificatePem = Base64.encodeToString(cert.encoded, false)
+    val fingerprint = createSign("SHA-1")
+            .digest(cert.encoded)
+            .joinToString("") { "%02x".format(it) }
+    val privateKeyPem = Base64.encodeToString(privateKey.encoded, false)
+    return Triple(certificatePem, fingerprint, privateKeyPem)
 }
