@@ -5,26 +5,27 @@ using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 
-namespace UonetRequestSignerHebe
+namespace Wulkanowy.UonetRequestSigner.Hebe
 {
     public class Signer
     {
-        public SignerValues GetSignatureValues(string fingerprint, string privKey, string body, DateTime date, string path)
+        public (string digest, string cannonicalUrl, string signature) GetSignatureValues(string fingerprint, string privateKey, 
+            string body, string requestPath, DateTime timestamp)
         {
             string digest = GetDigest(body);
-            string timestamp = date.ToString("ddd, dd MMM yyyy hh:mm:ss 'GMT'");
-            var headers = GetHeaders(path, timestamp, digest);
+            string formattedTimestamp = timestamp.ToString("ddd, dd MMM yyyy hh:mm:ss 'GMT'");
+            var headers = GetHeaders(requestPath, formattedTimestamp, digest);
             
             var headersName = from header in headers select header.Item1;
             var headersValue = from header in headers select header.Item2;
-            
-            return new SignerValues
-            {
-                Digest = $"SHA-256={digest}",
-                CannonicalUrl = GetEncodedPath(path),
-                Signature = $"keyId=\"{fingerprint}\",headers=\"{String.Join(" ", headersName.ToArray())}\",algorithm=\"sha256withrsa\","+
-                    $"signature=Base64(SHA256withRSA({GetSignatureValues(String.Join("", headersValue.ToArray()), privKey)}))"
-            };
+
+            return 
+            (
+                $"SHA-256={digest}",
+                GetEncodedPath(requestPath),
+                $"keyId=\"{fingerprint}\",headers=\"{String.Join(" ", headersName.ToArray())}\",algorithm=\"sha256withrsa\"," +
+                $"signature=Base64(SHA256withRSA({GetSignatureValues(String.Join("", headersValue.ToArray()), privateKey)}))"
+            );
         }
 
         private List<(string, string)> GetHeaders(string url, string date, string digest)

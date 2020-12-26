@@ -9,6 +9,7 @@
     <PackageProjectUrl>https://github.com/wulkanowy/uonet-request-signer/dotnet-hebe</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/wulkanowy/uonet-request-signer/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/wulkanowy/uonet-request-signer</RepositoryUrl>
+    <RootNamespace>Wulkanowy.UonetRequestSigner.Hebe</RootNamespace>
   </PropertyGroup>
 
 </Project>

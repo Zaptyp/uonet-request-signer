@@ -4,6 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <RootNamespace>Wulkanowy.UonetRequestSigner.Hebe.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UonetRequestSignerHebe\UonetRequestSignerHebe.csproj" />
+    <ProjectReference Include="..\Wulkanowy.UonetRequestSigner.Hebe\Wulkanowy.UonetRequestSigner.Hebe.csproj" />
   </ItemGroup>
 
 </Project>

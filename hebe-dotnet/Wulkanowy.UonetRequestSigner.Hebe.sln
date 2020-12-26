@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UonetRequestSignerHebe", "UonetRequestSignerHebe\UonetRequestSignerHebe.csproj", "{363FE9EB-2A65-4486-8EF7-8481C28E3317}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wulkanowy.UonetRequestSigner.Hebe", "Wulkanowy.UonetRequestSigner.Hebe\Wulkanowy.UonetRequestSigner.Hebe.csproj", "{363FE9EB-2A65-4486-8EF7-8481C28E3317}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UonetRequestSignerHebe.Tests", "UonetRequestSignerHebe.Tests\UonetRequestSignerHebe.Tests.csproj", "{5F62B704-B38A-4DB9-AAC9-E8252F0D7566}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wulkanowy.UonetRequestSigner.Hebe.Tests", "Wulkanowy.UonetRequestSigner.Hebe.Tests\Wulkanowy.UonetRequestSigner.Hebe.Tests.csproj", "{5F62B704-B38A-4DB9-AAC9-E8252F0D7566}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

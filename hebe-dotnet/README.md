@@ -3,7 +3,7 @@
 ## Usage
 
 ```cs
-using UonetRequestSignerHebe;
+using Wulkanowy.UonetRequestSigner.Hebe;
 
 var signed = new Signer().GetSignatureValues("fingerprint", "private_key", "body", DateTime.Now, "url");
 ```
