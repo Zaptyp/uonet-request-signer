@@ -10,51 +10,69 @@ timestamp = datetime(2020, 4, 14, 4, 14, 16)
 
 expected_digest = "SHA-256=RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o="
 expected_canonical_url = "api%2fmobile%2fregister%2fhebe"
-expected_signature = ','.join([
-    'keyId="7EBA57E1DDBA1C249D097A9FF1C9CCDD45351A6A"',
-    'headers="vCanonicalUrl Digest vDate"',
-    'algorithm="sha256withrsa"',
-    'signature=Base64(SHA256withRSA(mIVNkthTzTHmmXG1qxv1Jpt3uRlyhbj7VHysbCNpl0zXCCzuwTXsuCrfjexDDXsyJVo/LznQKOyvOaW4tEfrBobxtbtTnp7zYi54bdvAZa3pvM02yvkH4i/DvTLDKRO0R9UDZ1LraGrOTsIe3m3mQ21NOynVqCKadeqod8Y7l4YUlVYEmrtq/7xbCwr0qdne6G67eY4Amj6ffbG3TkVLpUrEETBnAC7oFjGYKhcRyvltAi+lcv6omANz1gwELf+Vmsa8NwFo/YGwY3R23z15athU/1iC1JcrECBLC8nRM1+KlvyIqx2HX6RG5R1cMOwBWVg6pRKUdrhxYbQ+VQ8Cag==))'
-])
-expected_signature_no_body = ','.join([
-    'keyId="7EBA57E1DDBA1C249D097A9FF1C9CCDD45351A6A"',
-    'headers="vCanonicalUrl vDate"',
-    'algorithm="sha256withrsa"',
-    'signature=Base64(SHA256withRSA(An1Fkg2OjCNOjGMJRG/YmAGGsqzXT00kkRaLq54U30LS8B9yf6f1wjumg4tCxi3x6aGrnf7pKiuhQgHTAbBAGJzwIBGrVcch24pBTPHfZsibOiNJVNu0s6wP8wCDq97JRCUCti9kyt8hcIZiicOVL+wDgV6NAFYkloAKTdEUBC6tqeFObgktr4Qhxa/khKtD4/hwKTSEJFIQKFtOlAuekXFNafdQwekFFmXtKNd69b1n3p39XVHe0bM5AJVNr0kMvN6M97/8RE4Tz62CXKUVla6XyY7n+osrFMnTAGGtXq15FjS3UI6ObUmx9dHJHREn2GdB1DY3KCCv46O1zaRq4A==))'
-])
+expected_signature = ",".join(
+    [
+        'keyId="7EBA57E1DDBA1C249D097A9FF1C9CCDD45351A6A"',
+        'headers="vCanonicalUrl Digest vDate"',
+        'algorithm="sha256withrsa"',
+        "signature=Base64(SHA256withRSA(mIVNkthTzTHmmXG1qxv1Jpt3uRlyhbj7VHysbCNpl0zXCCzuwTXsuCrfjexDDXsyJVo/LznQKOyvOaW4tEfrBobxtbtTnp7zYi54bdvAZa3pvM02yvkH4i/DvTLDKRO0R9UDZ1LraGrOTsIe3m3mQ21NOynVqCKadeqod8Y7l4YUlVYEmrtq/7xbCwr0qdne6G67eY4Amj6ffbG3TkVLpUrEETBnAC7oFjGYKhcRyvltAi+lcv6omANz1gwELf+Vmsa8NwFo/YGwY3R23z15athU/1iC1JcrECBLC8nRM1+KlvyIqx2HX6RG5R1cMOwBWVg6pRKUdrhxYbQ+VQ8Cag==))",
+    ]
+)
+expected_signature_no_body = ",".join(
+    [
+        'keyId="7EBA57E1DDBA1C249D097A9FF1C9CCDD45351A6A"',
+        'headers="vCanonicalUrl vDate"',
+        'algorithm="sha256withrsa"',
+        "signature=Base64(SHA256withRSA(An1Fkg2OjCNOjGMJRG/YmAGGsqzXT00kkRaLq54U30LS8B9yf6f1wjumg4tCxi3x6aGrnf7pKiuhQgHTAbBAGJzwIBGrVcch24pBTPHfZsibOiNJVNu0s6wP8wCDq97JRCUCti9kyt8hcIZiicOVL+wDgV6NAFYkloAKTdEUBC6tqeFObgktr4Qhxa/khKtD4/hwKTSEJFIQKFtOlAuekXFNafdQwekFFmXtKNd69b1n3p39XVHe0bM5AJVNr0kMvN6M97/8RE4Tz62CXKUVla6XyY7n+osrFMnTAGGtXq15FjS3UI6ObUmx9dHJHREn2GdB1DY3KCCv46O1zaRq4A==))",
+    ]
+)
 
 TEST_DATA = [
     (  # with a POST body
-        fingerprint, 
-        private_key, 
-        body, 
-        full_url, 
+        fingerprint,
+        private_key,
+        body,
+        full_url,
         timestamp,
         expected_digest,
         expected_canonical_url,
-        expected_signature
+        expected_signature,
     ),
     (  # without a POST body
-        fingerprint, 
-        private_key, 
+        fingerprint,
+        private_key,
         None,  # body
-        full_url, 
+        full_url,
         timestamp,
         None,  # digest
         expected_canonical_url,
-        expected_signature_no_body
-    )
+        expected_signature_no_body,
+    ),
 ]
 
 
 def test_invalid_url():
     with pytest.raises(ValueError):
-        get_signature_values('', '', '', 'invalid url', datetime.now())
+        get_signature_values("", "", "", "invalid url", datetime.now())
 
 
-@pytest.mark.parametrize("fingerprint,private_key,body,full_url,timestamp,expected_digest,expected_canonical_url,expected_signature", TEST_DATA)
-def test_signature(fingerprint, private_key, body, full_url, timestamp, expected_digest, expected_canonical_url, expected_signature):
-    digest, canonical_url, signature = get_signature_values(fingerprint, private_key, body, full_url, timestamp)
+@pytest.mark.parametrize(
+    "fingerprint,private_key,body,full_url,timestamp,expected_digest,expected_canonical_url,expected_signature",
+    TEST_DATA,
+)
+def test_signature(
+    fingerprint,
+    private_key,
+    body,
+    full_url,
+    timestamp,
+    expected_digest,
+    expected_canonical_url,
+    expected_signature,
+):
+    digest, canonical_url, signature = get_signature_values(
+        fingerprint, private_key, body, full_url, timestamp
+    )
 
     assert expected_digest == digest
     assert expected_canonical_url == canonical_url
