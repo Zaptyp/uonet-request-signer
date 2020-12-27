@@ -13,14 +13,14 @@ namespace Wulkanowy.UonetRequestSigner.Hebe.Tests
         [Fact]
         public void SignCert()
         {
-            var result = new Signer().GetSignatureValues(Fingerprint, PrivateKey, Body, FullUrl, new DateTime(2020, 4, 14, 4, 14, 16));
-            Assert.Equal("SHA-256=RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o=", result.digest);
-            Assert.Equal("api%2fmobile%2fregister%2fhebe", result.cannonicalUrl);
+            var (digest, cannonicalUrl, signature) = Signer.GetSignatureValues(Fingerprint, PrivateKey, Body, FullUrl, new DateTime(2020, 4, 14, 4, 14, 16));
+            Assert.Equal("SHA-256=RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o=", digest);
+            Assert.Equal("api%2fmobile%2fregister%2fhebe", cannonicalUrl);
             Assert.Equal("keyId=\"7EBA57E1DDBA1C249D097A9FF1C9CCDD45351A6A\"," +
                          "headers=\"vCanonicalUrl Digest vDate\"," +
                          "algorithm=\"sha256withrsa\"," +
                          "signature=Base64(SHA256withRSA(mIVNkthTzTHmmXG1qxv1Jpt3uRlyhbj7VHysbCNpl0zXCCzuwTXsuCrfjexDDXsyJVo/LznQKOyvOaW4tEfrBobxtbtTnp7zYi54bdvAZa3pvM02yvkH4i/DvTLDKRO0R9UDZ1LraGrOTsIe3m3mQ21NOynVqCKadeqod8Y7l4YUlVYEmrtq/7xbCwr0qdne6G67eY4Amj6ffbG3TkVLpUrEETBnAC7oFjGYKhcRyvltAi+lcv6omANz1gwELf+Vmsa8NwFo/YGwY3R23z15athU/1iC1JcrECBLC8nRM1+KlvyIqx2HX6RG5R1cMOwBWVg6pRKUdrhxYbQ+VQ8Cag==))",
-                result.signature);
+                signature);
         }
     }
 }

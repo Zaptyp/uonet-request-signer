@@ -5,7 +5,7 @@
 ```cs
 using Wulkanowy.UonetRequestSigner.Hebe;
 
-var signed = new Signer().GetSignatureValues("fingerprint", "private_key", "body", "url", DateTime.Now);
+var (digest, cannonicalUrl, signature) = Signer.GetSignatureValues("fingerprint", "private_key", "body", "url", DateTime.Now);
 ```
 
 ## Tests

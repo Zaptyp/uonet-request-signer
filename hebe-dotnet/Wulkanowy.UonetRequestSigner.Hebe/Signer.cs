@@ -8,9 +8,9 @@ using System.Web;
 
 namespace Wulkanowy.UonetRequestSigner.Hebe
 {
-    public class Signer
+    public static class Signer
     {
-        public (string digest, string cannonicalUrl, string signature) GetSignatureValues(string fingerprint, string privateKey, 
+        public static (string digest, string cannonicalUrl, string signature) GetSignatureValues(string fingerprint, string privateKey, 
             string body, string requestPath, DateTime timestamp)
         {
             string digest = GetDigest(body);
@@ -29,7 +29,7 @@ namespace Wulkanowy.UonetRequestSigner.Hebe
             );
         }
 
-        private List<(string, string)> GetHeaders(string url, string date, string digest)
+        private static List<(string, string)> GetHeaders(string url, string date, string digest)
         {
             var headers = new List<(string header, string value)>();
             headers.Add(("vCanonicalUrl", GetEncodedPath(url)));
@@ -39,7 +39,7 @@ namespace Wulkanowy.UonetRequestSigner.Hebe
             return headers;
         }
 
-        private string GetEncodedPath(string path)
+        private static string GetEncodedPath(string path)
         {
             var rx = Regex.Match(path, "(api/mobile/.+)");
             if (rx.Value == null)
@@ -48,7 +48,7 @@ namespace Wulkanowy.UonetRequestSigner.Hebe
             return HttpUtility.UrlEncode(rx.Value);
         }
 
-        private string GetDigest(string body)
+        private static string GetDigest(string body)
         {
             var sha = SHA256.Create();
             var data = sha.ComputeHash(Encoding.UTF8.GetBytes(body));
@@ -56,7 +56,7 @@ namespace Wulkanowy.UonetRequestSigner.Hebe
             return Convert.ToBase64String(data);
         }
         
-        private string GetSignatureValues(string values, string privKey)
+        private static string GetSignatureValues(string values, string privKey)
         {
             var blk = Convert.FromBase64String(privKey);
             var provider = new RSACryptoServiceProvider();
