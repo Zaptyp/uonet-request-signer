@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Collections.Generic;
+using System.Web;
 
 namespace Wulkanowy.UonetRequestSigner.Hebe
 {
@@ -22,7 +23,7 @@ namespace Wulkanowy.UonetRequestSigner.Hebe
             return 
             (
                 $"SHA-256={digest}",
-                GetEncodedPath(requestPath),
+                headers[0].Item2,
                 $"keyId=\"{fingerprint}\",headers=\"{String.Join(" ", headersName.ToArray())}\",algorithm=\"sha256withrsa\"," +
                 $"signature=Base64(SHA256withRSA({GetSignatureValues(String.Join("", headersValue.ToArray()), privateKey)}))"
             );
@@ -44,7 +45,7 @@ namespace Wulkanowy.UonetRequestSigner.Hebe
             if (rx.Value == null)
                 throw new Exception("The url is not finded!");
             
-            return rx.Value.Replace("/", "%2f");
+            return HttpUtility.UrlEncode(rx.Value);
         }
 
         private string GetDigest(string body)
