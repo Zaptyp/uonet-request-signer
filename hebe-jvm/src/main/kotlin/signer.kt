@@ -1,16 +1,14 @@
 package io.github.wulkanowy.signer.hebe
 
 import com.migcomponents.migbase64.Base64
-import org.bouncycastle.asn1.x500.X500Name
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
-import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
-import java.math.BigInteger
+import eu.szkolny.x509.X509Generator
 import java.net.URLEncoder
-import java.security.*
+import java.security.KeyFactory
+import java.security.KeyPairGenerator
+import java.security.Signature
 import java.security.spec.PKCS8EncodedKeySpec
 import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
 import java.util.*
 import java.security.MessageDigest.getInstance as createSign
 
@@ -75,40 +73,22 @@ fun generateKeyPair(): Triple<String, String, String> {
     val generator = KeyPairGenerator.getInstance("RSA")
     generator.initialize(2048)
     val keyPair = generator.generateKeyPair()
-    val publicKey = keyPair.public
     val privateKey = keyPair.private
 
-    val bcProvider = BouncyCastleProvider()
-    Security.addProvider(bcProvider)
+    val notBefore = ZonedDateTime.now()
+    val notAfter = notBefore.plusYears(20)
 
-    val now = System.currentTimeMillis()
-    val notBefore = Date(now)
+    val cert = X509Generator(X509Generator.Algorithm.RSA_SHA256)
+            .generate(subject = mapOf("CN" to "APP_CERTIFICATE CA Certificate"),
+                    notBefore = notBefore,
+                    notAfter = notAfter,
+                    serialNumber = 1,
+                    keyPair = keyPair
+            )
 
-    val name = X500Name("CN=APP_CERTIFICATE CA Certificate")
-
-    val notAfter = Calendar.getInstance()
-    notAfter.time = notBefore
-    notAfter.add(Calendar.YEAR, 20)
-
-    val contentSigner = JcaContentSignerBuilder("SHA256withRSA")
-            .build(privateKey)
-
-    val certBuilder = JcaX509v3CertificateBuilder(
-            name,
-            BigInteger.ONE,
-            notBefore,
-            notAfter.time,
-            name,
-            publicKey
-    )
-
-    val cert = JcaX509CertificateConverter()
-            .setProvider(bcProvider)
-            .getCertificate(certBuilder.build(contentSigner))
-
-    val certificatePem = Base64.encodeToString(cert.encoded, false)
+    val certificatePem = Base64.encodeToString(cert, false)
     val fingerprint = createSign("SHA-1")
-            .digest(cert.encoded)
+            .digest(cert)
             .joinToString("") { "%02x".format(it) }
     val privateKeyPem = Base64.encodeToString(privateKey.encoded, false)
     return Triple(certificatePem, fingerprint, privateKeyPem)
