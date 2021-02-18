@@ -4,29 +4,33 @@ import com.migcomponents.migbase64.Base64
 import eu.szkolny.x509.X509Generator
 import java.net.URLEncoder
 import java.security.KeyFactory
+import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.Signature
+import java.security.interfaces.RSAPrivateCrtKey
 import java.security.spec.PKCS8EncodedKeySpec
-import java.text.SimpleDateFormat
+import java.security.spec.RSAPublicKeySpec
+import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.*
+import java.time.format.DateTimeFormatter
 import java.security.MessageDigest.getInstance as createSign
 
-private fun getDigest(body: String?): String {
-    if (body == null) return ""
+private fun getDigest(body: String?): String? {
+    if (body == null) return null
     return Base64.encodeToString(createSign("SHA-256").digest(body.toByteArray()), false)
 }
 
-private fun getSignatureValue(values: String, privateKey: String): String {
-    val bl = Base64.decode(privateKey)
-    val spec = PKCS8EncodedKeySpec(bl)
-    val kf = KeyFactory.getInstance("RSA")
+private fun getSignatureValue(values: String, privatePem: String): String {
+    val keyFactory = KeyFactory.getInstance("RSA")
+    val privateBytes = Base64.decode(privatePem)
+    val privateSpec = PKCS8EncodedKeySpec(privateBytes)
+    val privateKey = keyFactory.generatePrivate(privateSpec)
 
-    val privateSignature = Signature.getInstance("SHA256withRSA")
-    privateSignature.initSign(kf.generatePrivate(spec))
-    privateSignature.update(values.toByteArray())
+    val signature = Signature.getInstance("SHA256withRSA")
+    signature.initSign(privateKey)
+    signature.update(values.toByteArray())
 
-    return Base64.encodeToString(privateSignature.sign(), false)
+    return Base64.encodeToString(signature.sign(), false)
 }
 
 private fun getEncodedPath(path: String): String {
@@ -36,44 +40,57 @@ private fun getEncodedPath(path: String): String {
     return URLEncoder.encode(url.groupValues[0], "UTF-8").orEmpty().toLowerCase()
 }
 
-private fun getHeadersList(body: String?, digest: String, canonicalUrl: String, timestamp: Date): Pair<String, String> {
-    val signData = mutableMapOf<String, String>()
-    signData["vCanonicalUrl"] = canonicalUrl
-    if (body != null) signData["Digest"] = digest
-    signData["vDate"] = SimpleDateFormat("EEE, d MMM yyyy hh:mm:ss z", Locale.ENGLISH).apply {
-        timeZone = TimeZone.getTimeZone("GMT")
-    }.format(timestamp)
-
-    return Pair(
-        first = signData.keys.joinToString(" "),
-        second = signData.values.joinToString("")
-    )
+private fun getHeaders(digest: String?, canonicalUrl: String, timestamp: ZonedDateTime): MutableMap<String, String> {
+    val headers = mutableMapOf<String, String>()
+    headers["vCanonicalUrl"] = canonicalUrl
+    if (digest != null) headers["Digest"] = digest
+    headers["vDate"] = timestamp.format(DateTimeFormatter.RFC_1123_DATE_TIME)
+    return headers
 }
 
-fun getSignatureValues(
-    fingerprint: String,
-    privateKey: String,
+fun getSignatureHeaders(
+    keyId: String,
+    privatePem: String,
     body: String?,
     requestPath: String,
-    timestamp: Date
-): Triple<String, String, String> {
+    timestamp: ZonedDateTime
+): Map<String, String> {
     val canonicalUrl = getEncodedPath(requestPath)
     val digest = getDigest(body)
-    val (headers, values) = getHeadersList(body, digest, canonicalUrl, timestamp)
-    val signatureValue = getSignatureValue(values, privateKey)
+    val headers = getHeaders(digest, canonicalUrl, timestamp.withZoneSameInstant(ZoneId.of("GMT")))
+    val headerNames = headers.keys.joinToString(" ")
+    val headerValues = headers.values.joinToString("")
+    val signatureValue = getSignatureValue(headerValues, privatePem)
 
-    return Triple(
-        "SHA-256=${digest}",
-        canonicalUrl,
-        """keyId="$fingerprint",headers="$headers",algorithm="sha256withrsa",signature=Base64(SHA256withRSA($signatureValue))"""
-    )
+    headers["Digest"] = "SHA-256=${digest}"
+    headers["Signature"] = """keyId="$keyId",headers="$headerNames",algorithm="sha256withrsa",signature=Base64(SHA256withRSA($signatureValue))"""
+
+    return headers
 }
 
 fun generateKeyPair(): Triple<String, String, String> {
     val generator = KeyPairGenerator.getInstance("RSA")
     generator.initialize(2048)
     val keyPair = generator.generateKeyPair()
-    val privateKey = keyPair.private
+    val publicKey = keyPair.public.encoded
+    val privateKey = keyPair.private.encoded
+
+    val publicPem = Base64.encodeToString(publicKey, false)
+    val privatePem = Base64.encodeToString(privateKey, false)
+    val publicHash = createSign("MD5")
+            .digest(publicPem.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+    return Triple(publicPem, privatePem, publicHash)
+}
+
+fun generateCertificate(privatePem: String): Pair<String, String> {
+    val keyFactory = KeyFactory.getInstance("RSA")
+    val privateBytes = Base64.decode(privatePem)
+    val privateSpec = PKCS8EncodedKeySpec(privateBytes)
+    val privateKey = keyFactory.generatePrivate(privateSpec) as RSAPrivateCrtKey
+    val publicSpec = RSAPublicKeySpec(privateKey.modulus, privateKey.publicExponent, privateKey.params)
+    val publicKey = keyFactory.generatePublic(publicSpec)
+    val keyPair = KeyPair(publicKey, privateKey)
 
     val notBefore = ZonedDateTime.now()
     val notAfter = notBefore.plusYears(20)
@@ -87,9 +104,8 @@ fun generateKeyPair(): Triple<String, String, String> {
             )
 
     val certificatePem = Base64.encodeToString(cert, false)
-    val fingerprint = createSign("SHA-1")
+    val certificateHash = createSign("SHA-1")
             .digest(cert)
             .joinToString("") { "%02x".format(it) }
-    val privateKeyPem = Base64.encodeToString(privateKey.encoded, false)
-    return Triple(certificatePem, fingerprint, privateKeyPem)
+    return Pair(certificatePem, certificateHash)
 }
