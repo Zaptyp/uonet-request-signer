@@ -41,7 +41,7 @@ import io.github.wulkanowy.signer.hebe.android.getSignatureHeaders
 val headers = getSignatureHeaders(keyId, privatePem, body, fullUrl, ZonedDateTime.now())
 ```
 
-The `keyId` depends on the `CertificateType`:
+The `keyId` depends on the `CertificateType` (sent in the registration request JSON):
 - for `X509` - SHA-1 of the raw certificate bytes (`certificateHash`)
 - for `RSA_PEM` - MD5 of the PEM-encoded public key (`publicHash`)
 

@@ -57,8 +57,8 @@ fun getSignatureHeaders(
     val headerValues = headers.values.joinToString("")
     val signatureValue = getSignatureValue(headerValues, privatePem)
 
-    headers["Digest"] = "SHA-256=${digest}"
-    headers["Signature"] = """keyId="$keyId",headers="$headerNames",algorithm="sha256withrsa",signature=Base64(SHA256withRSA($signatureValue))"""
+    if (body != null) headers["Digest"] = "SHA-256=${digest}"
+    headers["Signature"] = """keyId="$keyId,headers="$headerNames",algorithm="sha256",signature=Base64(sha256withrsa($signatureValue))"""
 
     return headers
 }
