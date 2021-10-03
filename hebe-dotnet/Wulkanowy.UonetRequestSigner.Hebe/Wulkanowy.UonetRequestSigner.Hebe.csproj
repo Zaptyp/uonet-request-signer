@@ -10,6 +10,7 @@
     <PackageLicenseUrl>https://github.com/wulkanowy/uonet-request-signer/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/wulkanowy/uonet-request-signer</RepositoryUrl>
     <RootNamespace>Wulkanowy.UonetRequestSigner.Hebe</RootNamespace>
+    <PackageVersion>1.0.1</PackageVersion>
   </PropertyGroup>
 
 </Project>
