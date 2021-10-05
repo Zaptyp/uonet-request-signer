@@ -1,9 +1,10 @@
 using System;
+using Wulkanowy.UonetRequestSigner.Hebe.Exceptions;
 using Xunit;
 
 namespace Wulkanowy.UonetRequestSigner.Hebe.Tests
 {
-    public class SignerTest
+    public class TestSigner
     {
         private const string FullUrl = "/powiatwulkanowy/123456/api/mobile/register/hebe";
         private const string Fingerprint = "7EBA57E1DDBA1C249D097A9FF1C9CCDD45351A6A";
@@ -11,16 +12,25 @@ namespace Wulkanowy.UonetRequestSigner.Hebe.Tests
         private const string Body = "{}";
         
         [Fact]
-        public void SignCert()
+        public void TestSigner_ChecksHeaders()
         {
-            var (digest, cannonicalUrl, signature) = Signer.GetSignatureValues(Fingerprint, PrivateKey, Body, FullUrl, new DateTime(2020, 4, 14, 4, 14, 16));
+            var (digest, canonicalUrl, signature) = Signer.GetSignatureValues(Fingerprint, PrivateKey, Body, FullUrl, new DateTime(2020, 4, 14, 4, 14, 16));
             Assert.Equal("SHA-256=RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o=", digest);
-            Assert.Equal("api%2fmobile%2fregister%2fhebe", cannonicalUrl);
+            Assert.Equal("api%2fmobile%2fregister%2fhebe", canonicalUrl);
             Assert.Equal("keyId=\"7EBA57E1DDBA1C249D097A9FF1C9CCDD45351A6A\"," +
                          "headers=\"vCanonicalUrl Digest vDate\"," +
                          "algorithm=\"sha256withrsa\"," +
                          "signature=Base64(SHA256withRSA(mIVNkthTzTHmmXG1qxv1Jpt3uRlyhbj7VHysbCNpl0zXCCzuwTXsuCrfjexDDXsyJVo/LznQKOyvOaW4tEfrBobxtbtTnp7zYi54bdvAZa3pvM02yvkH4i/DvTLDKRO0R9UDZ1LraGrOTsIe3m3mQ21NOynVqCKadeqod8Y7l4YUlVYEmrtq/7xbCwr0qdne6G67eY4Amj6ffbG3TkVLpUrEETBnAC7oFjGYKhcRyvltAi+lcv6omANz1gwELf+Vmsa8NwFo/YGwY3R23z15athU/1iC1JcrECBLC8nRM1+KlvyIqx2HX6RG5R1cMOwBWVg6pRKUdrhxYbQ+VQ8Cag==))",
                 signature);
+        }
+
+        [Fact]
+        public void TestSignCert_TrowsNotMatchedUrlException()
+        {
+            Assert.Throws<NotMatchedUrlException>(() =>
+                Signer.GetSignatureValues(Fingerprint, PrivateKey, Body, "/example/path",
+                    new DateTime(2020, 4, 14, 4, 14, 16))
+                );
         }
     }
 }

@@ -5,16 +5,17 @@ using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.Web;
+using Wulkanowy.UonetRequestSigner.Hebe.Exceptions;
 
 namespace Wulkanowy.UonetRequestSigner.Hebe
 {
     public static class Signer
     {
-        public static (string digest, string cannonicalUrl, string signature) GetSignatureValues(string fingerprint, string privateKey, 
+        public static (string digest, string canonicalUrl, string signature) GetSignatureValues(string fingerprint, string privateKey, 
             string body, string requestPath, DateTime timestamp)
         {
-            string digest = GetDigest(body);
-            string formattedTimestamp = timestamp.ToString("ddd, dd MMM yyyy hh:mm:ss 'GMT'");
+            var digest = GetDigest(body);
+            var formattedTimestamp = timestamp.ToString("ddd, dd MMM yyyy hh:mm:ss 'GMT'");
             var headers = GetHeaders(requestPath, formattedTimestamp, digest);
             
             var headersName = from header in headers select header.Item1;
@@ -24,26 +25,28 @@ namespace Wulkanowy.UonetRequestSigner.Hebe
             (
                 $"SHA-256={digest}",
                 headers[0].Item2,
-                $"keyId=\"{fingerprint}\",headers=\"{String.Join(" ", headersName.ToArray())}\",algorithm=\"sha256withrsa\"," +
-                $"signature=Base64(SHA256withRSA({GetSignatureValues(String.Join("", headersValue.ToArray()), privateKey)}))"
+                $"keyId=\"{fingerprint}\",headers=\"{string.Join(" ", headersName.ToArray())}\",algorithm=\"sha256withrsa\"," +
+                $"signature=Base64(SHA256withRSA({GetSignatureValues(string.Join("", headersValue.ToArray()), privateKey)}))"
             );
         }
 
         private static List<(string, string)> GetHeaders(string url, string date, string digest)
         {
-            var headers = new List<(string header, string value)>();
-            headers.Add(("vCanonicalUrl", GetEncodedPath(url)));
-            headers.Add(("Digest", digest));
-            headers.Add(("vDate", date));
-            
+            var headers = new List<(string header, string value)>
+            {
+                ("vCanonicalUrl", GetEncodedPath(url)),
+                ("Digest", digest),
+                ("vDate", date)
+            };
+
             return headers;
         }
 
         private static string GetEncodedPath(string path)
         {
             var rx = Regex.Match(path, "(api/mobile/.+)");
-            if (rx.Value == null)
-                throw new Exception("The url is not finded!");
+            if (!rx.Success)
+                throw new NotMatchedUrlException(path);
             
             return HttpUtility.UrlEncode(rx.Value);
         }
@@ -56,9 +59,9 @@ namespace Wulkanowy.UonetRequestSigner.Hebe
             return Convert.ToBase64String(data);
         }
         
-        private static string GetSignatureValues(string values, string privKey)
+        private static string GetSignatureValues(string values, string privateKey)
         {
-            var blk = Convert.FromBase64String(privKey);
+            var blk = Convert.FromBase64String(privateKey);
             var provider = new RSACryptoServiceProvider();
             provider.ImportPkcs8PrivateKey(new ReadOnlySpan<byte>(blk), out _);
             var signedValues = provider.SignData(Encoding.UTF8.GetBytes(values), SHA256.Create());
