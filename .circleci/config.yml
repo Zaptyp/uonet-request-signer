@@ -87,7 +87,7 @@ jobs:
   dart-hebe:
     working_directory: ~/signer/hebe-dart
     docker:
-    - image: google/dart
+    - image: google/dart:2.13
     steps:
     - checkout:
             path: ~/signer
