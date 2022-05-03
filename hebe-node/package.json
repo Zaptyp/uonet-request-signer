@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/wulkanowy/uonet-request-signer/tree/master/hebe-node#readme",
   "devDependencies": {
-    "mocha": "^7.1.1",
-    "chai": "^4.2.0"
+    "mocha": "^10.0.0",
+    "chai": "^4.3.6"
   }
 }
