@@ -29,7 +29,7 @@ private fun getEncodedPath(path: String): String {
     val url = ("(api/mobile/.+)".toRegex().find(path))
         ?: throw IllegalArgumentException("The URL does not seem correct (does not match `(api/mobile/.+)` regex)")
 
-    return URLEncoder.encode(url.groupValues[0], "UTF-8").orEmpty().toLowerCase()
+    return URLEncoder.encode(url.groupValues[0], "UTF-8").orEmpty().lowercase()
 }
 
 private fun getHeadersList(body: String?, digest: String, canonicalUrl: String, timestamp: Date): Pair<String, String> {

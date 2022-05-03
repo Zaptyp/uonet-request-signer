@@ -1,13 +1,11 @@
 # UONET+ (hebe) Request Signer for Android
 
-[![Bintray](https://img.shields.io/bintray/v/wulkanowy/wulkanowy/uonet-request-signer-hebe-android.svg?style=flat-square)](https://bintray.com/wulkanowy/wulkanowy/uonet-request-signer-hebe-android)
-
 ## Installation
 
 ```groovy
 allprojects {
     repositories {
-        maven { url "https://dl.bintray.com/wulkanowy/wulkanowy" }
+        mavenLocal()
     }
 }
 

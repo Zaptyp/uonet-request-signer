@@ -1,7 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
 
 ext {
     PUBLISH_VERSION = '0.1.0'
@@ -13,12 +12,11 @@ group 'io.github.wulkanowy'
 version PUBLISH_VERSION
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 31
 
     defaultConfig {
         minSdkVersion 18
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode 1
         versionName PUBLISH_VERSION
 
@@ -35,70 +33,49 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.brsanthu:migbase64:2.2"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
 
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    configurations = ['archives']
-    pkg {
-        repo = 'wulkanowy'
-        name = 'uonet-request-signer-hebe-android'
-        userOrg = 'wulkanowy'
-        licenses = ['Apache-2.0']
-        vcsUrl = GIT_URL
-        labels = ['aar', 'wulkanowy', 'uonet-request-signer', 'hebe', 'uonet-request-signer-hebe', 'android']
-        publicDownloadNumbers = true
-        publish = true
-
-        version {
-            name = PUBLISH_VERSION
-            vcsTag = PUBLISH_VERSION
-            released = new Date()
-        }
-    }
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
 }
 
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                artifact androidSourcesJar
+
+                groupId = group
                 artifactId "uonet-request-signer-hebe-android"
-                name 'UONET+ (hebe) request signer for Android'
-                url SITE_URL
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                version = android.defaultConfig.versionName
+                pom {
+                    name = 'UONET+ (hebe) request signer for Android'
+                    url = SITE_URL
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
                     }
-                }
-                developers {
-                    developer {
-                        id 'kuba2k2'
-                        name 'Kuba Szczodrzyński'
-                        email 'kuba@szczodrzynski.pl'
+                    developers {
+                        developer {
+                            id = 'kuba2k2'
+                            name = 'Kuba Szczodrzyński'
+                            email = 'kuba@szczodrzynski.pl'
+                        }
                     }
-                }
-                scm {
-                    connection GIT_URL
-                    developerConnection GIT_URL
-                    url SITE_URL
+                    scm {
+                        connection = GIT_URL
+                        developerConnection = GIT_URL
+                        url = SITE_URL
+                    }
                 }
             }
         }
     }
-}
-
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-
-artifacts {
-    archives sourcesJar
 }
