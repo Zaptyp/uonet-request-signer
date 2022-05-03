@@ -12,7 +12,7 @@ jobs:
   node:
     working_directory: ~/signer/node
     docker:
-    - image: circleci/node:17
+    - image: cimg/node:17.9
     steps:
     - checkout:
         path: ~/signer
