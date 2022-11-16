@@ -2,3 +2,35 @@ plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm'
 }
+
+publishing {
+    publications {
+        jvm(MavenPublication) {
+            from components.java
+            version = rootProject.version
+
+            pom {
+                name = 'UONET+ Request Signer'
+                url = 'https://github.com/uonet-request-signer'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'mklkj'
+                        name = 'Mikołaj Pich'
+                        email = 'm.pich@outlook.com'
+                    }
+                }
+                scm {
+                    connection = 'https://github.com/uonet-request-signer.git'
+                    developerConnection = 'git@github.com:uonet-request-signer.git'
+                    url = 'https://github.com/uonet-request-signer'
+                }
+            }
+        }
+    }
+}
